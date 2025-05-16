@@ -30,8 +30,7 @@ export function DonationHistory() {
       } catch (error: any) {
         console.error('Error fetching donations:', error);
         toast({
-          title: t("errorFetchingDonations"),
-          description: error.message,
+          title: `${t("errorFetchingDonations")}: ${error.message}`,
           variant: "destructive",
         });
       } finally {
