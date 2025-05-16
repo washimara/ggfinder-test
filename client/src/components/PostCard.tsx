@@ -57,7 +57,7 @@ export function PostCard({ post }: PostCardProps) {
             </div>
           )}
 
-          {post.customFields?.some(field => field.name === "Time") && (
+          {(post.customFields && post.customFields.some(field => field.name === "Time")) && (
             <div className={`flex items-center text-sm ${secondaryTextColor}`}>
               <Calendar className="h-3.5 w-3.5 mr-1" />
               <span>
