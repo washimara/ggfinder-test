@@ -69,16 +69,14 @@ export function SearchResultsPage() {
           setUseCurrentLocation(true);
           setLocationSearch(""); // Clear the location search when using current location
           toast({
-            title: t("locationFound"),
-            description: t("usingCurrentLocation"),
+            title: `${t("locationFound")}: ${t("usingCurrentLocation")}`,
           });
           setLoading(false);
         },
         (error) => {
           console.error("Error getting location:", error);
           toast({
-            title: t("locationError"),
-            description: t("couldNotGetLocation"),
+            title: `${t("locationError")}: ${t("couldNotGetLocation")}`,
             variant: "destructive",
           });
           setUseCurrentLocation(false);
@@ -87,8 +85,7 @@ export function SearchResultsPage() {
       );
     } else {
       toast({
-        title: t("locationNotSupported"),
-        description: t("browserDoesNotSupport"),
+        title: `${t("locationNotSupported")}: ${t("browserDoesNotSupport")}`,
         variant: "destructive",
       });
     }
@@ -120,11 +117,16 @@ export function SearchResultsPage() {
         }
 
         const response = await getAdverts(params)
-        setAdverts(response.adverts)
+        setAdverts(
+          response.adverts.map((advert) => ({
+            ...advert,
+            createdAt: advert.createdAt || new Date().toISOString(), // Default value
+            userId: advert.userId || "unknown", // Default value
+          }))
+        )
       } catch (error: any) {
         toast({
-          title: "Error",
-          description: error.message,
+          title: `Error: ${error.message}`,
           variant: "destructive",
         })
       } finally {
@@ -133,7 +135,7 @@ export function SearchResultsPage() {
     }
 
     fetchAdverts()
-  }, [query, selectedTags, locationSearch, radius, userCoords, useCurrentLocation, toast])
+  }, [query, selectedTags, locationSearch, radius, userCoords, useCurrentLocation])
 
   const toggleTag = (tag: string) => {
     setSelectedTags((prev) =>
