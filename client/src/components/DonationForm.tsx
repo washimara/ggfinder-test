@@ -13,13 +13,14 @@ interface DonationFormProps {
 }
 
 type DonationType = "one-time" | "subscription";
+type PaymentMethod = "card" | "bank" | "paypal";
 
 export const DonationForm = ({ onSuccess }: DonationFormProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState(10);
-  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [donationType, setDonationType] = useState<DonationType>("one-time");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,7 +95,7 @@ export const DonationForm = ({ onSuccess }: DonationFormProps) => {
           <Label>{t("donationType")}</Label>
           <RadioGroup
             value={donationType}
-            onValueChange={setDonationType}
+            onValueChange={(value: string) => setDonationType(value as DonationType)}
             className="mt-2 flex flex-col space-y-2"
           >
             <div className="flex items-center space-x-2">
@@ -113,7 +114,7 @@ export const DonationForm = ({ onSuccess }: DonationFormProps) => {
           <Label>{t("paymentMethod")}</Label>
           <RadioGroup
             value={paymentMethod}
-            onValueChange={setPaymentMethod}
+            onValueChange={(value: string) => setPaymentMethod(value as PaymentMethod)}
             className="mt-2 flex flex-col space-y-2"
           >
             <div className="flex items-center space-x-2">
