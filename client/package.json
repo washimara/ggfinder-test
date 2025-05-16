@@ -76,3 +76,5 @@
     "vite": "^5.1.4"
   }
 }
+
+"build": "cd client && npm install && npm run build"
