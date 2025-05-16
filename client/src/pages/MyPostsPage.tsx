@@ -54,9 +54,10 @@ export function MyPostsPage() {
         
         console.log("Valid posts to display:", validPosts.length);
         setPosts(
-          validPosts.map((post: Omit<Post, "userId"> & { userId?: string }) => ({
+          validPosts.map((post: Omit<Post, "userId" | "createdAt"> & { userId?: string; createdAt?: string }) => ({
             ...post,
             userId: post.userId || "unknown",
+            createdAt: post.createdAt || new Date().toISOString(),
           }))
         );
       } catch (error: any) {
