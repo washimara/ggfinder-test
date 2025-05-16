@@ -66,7 +66,12 @@ export function AdvertDetailPage() {
       try {
         setLoading(true)
         const response = await getAdvertById(id, key || undefined)
-        setAdvert(response.advert)
+        const advert = response.advert as Omit<Advert, "createdAt" | "userId"> & { createdAt?: string; userId?: string };
+        setAdvert({
+          ...advert,
+          createdAt: advert.createdAt || new Date().toISOString(),
+          userId: advert.userId || "unknown",
+        })
         setNeedsKey(false)
 
         // Track the view after successfully fetching the advert
@@ -78,15 +83,13 @@ export function AdvertDetailPage() {
           setNeedsKey(true)
           if (key) {
             toast({
-              title: "Invalid Access Key",
-              description: "The provided access key is not valid for this advert.",
+              title: "Invalid Access Key: The provided access key is not valid for this advert.",
               variant: "destructive",
             })
           }
         } else {
           toast({
-            title: "Error",
-            description: error.message,
+            title: `Error: ${error.message}`,
             variant: "destructive",
           })
         }
@@ -96,21 +99,19 @@ export function AdvertDetailPage() {
     }
 
     fetchAdvert()
-  }, [id, key, toast])
+  }, [id, key])
 
   const handleDelete = async () => {
     if (!id) return
     try {
       await deleteAdvert(id)
       toast({
-        title: "Success",
-        description: "Advert deleted successfully",
+        title: "Success: Advert deleted successfully",
       })
       navigate("/my-posts")
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message,
+        title: `Error: ${error.message}`,
         variant: "destructive",
       })
     }
@@ -184,7 +185,7 @@ export function AdvertDetailPage() {
     )
   }
 
-  const isOwner = user && user._id === advert.userId
+  const isOwner = user ? user._id === advert.userId : undefined;
   const isPrivate = advert.visibility === 'private'
 
   return (
