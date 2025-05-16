@@ -12,21 +12,22 @@ interface DonationFormProps {
   onSuccess?: () => void;
 }
 
+type DonationType = "one-time" | "subscription";
+
 export const DonationForm = ({ onSuccess }: DonationFormProps) => {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState(10);
   const [paymentMethod, setPaymentMethod] = useState("card");
-  const [donationType, setDonationType] = useState("one-time");
+  const [donationType, setDonationType] = useState<DonationType>("one-time");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (amount < 1) {
       toast({
-        title: t("error"),
-        description: t("minimumDonationAmount"),
+        title: `${t("error")}: ${t("minimumDonationAmount")}`,
         variant: "destructive",
       });
       return;
@@ -35,15 +36,14 @@ export const DonationForm = ({ onSuccess }: DonationFormProps) => {
     setIsLoading(true);
 
     try {
-      const response = await makeDonation({
+      await makeDonation({
         amount,
         paymentMethod,
         donationType,
       });
 
       toast({
-        title: t("success"),
-        description: t("donationSuccess"),
+        title: `${t("success")}: ${t("donationSuccess")}`,
       });
 
       // Reset form
@@ -60,8 +60,7 @@ export const DonationForm = ({ onSuccess }: DonationFormProps) => {
       window.location.reload();
     } catch (error: any) {
       toast({
-        title: t("error"),
-        description: error.message,
+        title: `${t("error")}: ${error.message}`,
         variant: "destructive",
       });
     } finally {
@@ -102,6 +101,11 @@ export const DonationForm = ({ onSuccess }: DonationFormProps) => {
               <RadioGroupItem value="one-time" id="one-time" />
               <Label htmlFor="one-time">{t("oneTimeDonation")}</Label>
             </div>
+            {/* Uncomment this if you want to add subscription option */}
+            {/* <div className="flex items-center space-x-2">
+              <RadioGroupItem value="subscription" id="subscription" />
+              <Label htmlFor="subscription">{t("subscriptionDonation")}</Label>
+            </div> */}
           </RadioGroup>
         </div>
 
