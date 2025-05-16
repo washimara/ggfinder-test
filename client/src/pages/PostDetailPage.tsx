@@ -59,11 +59,14 @@ export function PostDetailPage() {
       try {
         setLoading(true)
         const response = await getAdvertById(id)
-        setAdvert(response.advert)
+        setAdvert({
+          ...response.advert,
+          createdAt: response.advert.createdAt || new Date().toISOString(), // Default value
+          userId: response.advert.userId || "unknown", // Default value
+        })
       } catch (error: any) {
         toast({
-          title: "Error",
-          description: error.message,
+          title: `Error: ${error.message}`,
           variant: "destructive",
         })
       } finally {
@@ -72,21 +75,19 @@ export function PostDetailPage() {
     }
 
     fetchAdvert()
-  }, [id, toast])
+  }, [id])
 
   const handleDelete = async () => {
     if (!id) return
     try {
       await deleteAdvert(id)
       toast({
-        title: "Success",
-        description: "Post deleted successfully",
+        title: "Success: Post deleted successfully",
       })
       navigate("/my-posts")
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message,
+        title: `Error: ${error.message}`,
         variant: "destructive",
       })
     }
