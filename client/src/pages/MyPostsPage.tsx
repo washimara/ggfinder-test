@@ -53,11 +53,15 @@ export function MyPostsPage() {
         });
         
         console.log("Valid posts to display:", validPosts.length);
-        setPosts(validPosts);
+        setPosts(
+          validPosts.map((post: Omit<Post, "userId"> & { userId?: string }) => ({
+            ...post,
+            userId: post.userId || "unknown",
+          }))
+        );
       } catch (error: any) {
         toast({
-          title: "Error",
-          description: error.message,
+          title: `Error: ${error.message}`,
           variant: "destructive",
         });
       } finally {
@@ -66,7 +70,7 @@ export function MyPostsPage() {
     };
 
     fetchPosts();
-  }, [toast]);
+  }, []);
 
   return (
     <div className="py-8">
