@@ -59,10 +59,11 @@ export function PostDetailPage() {
       try {
         setLoading(true)
         const response = await getAdvertById(id)
+        const advert = response.advert as Omit<Advert, "createdAt" | "userId"> & { createdAt?: string; userId?: string };
         setAdvert({
-          ...response.advert,
-          createdAt: response.advert.createdAt || new Date().toISOString(), // Default value
-          userId: response.advert.userId || "unknown", // Default value
+          ...advert,
+          createdAt: advert.createdAt || new Date().toISOString(),
+          userId: advert.userId || "unknown",
         })
       } catch (error: any) {
         toast({
