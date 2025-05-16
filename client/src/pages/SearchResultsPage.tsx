@@ -118,10 +118,10 @@ export function SearchResultsPage() {
 
         const response = await getAdverts(params)
         setAdverts(
-          response.adverts.map((advert) => ({
+          response.adverts.map((advert: Omit<Advert, "createdAt" | "userId"> & { createdAt?: string; userId?: string }) => ({
             ...advert,
-            createdAt: advert.createdAt || new Date().toISOString(), // Default value
-            userId: advert.userId || "unknown", // Default value
+            createdAt: advert.createdAt || new Date().toISOString(),
+            userId: advert.userId || "unknown",
           }))
         )
       } catch (error: any) {
