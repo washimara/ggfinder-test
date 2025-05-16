@@ -2,16 +2,14 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useAuth } from "@/contexts/AuthContext";
 
 export function SearchBar({ className = "", placeholder = "", onSearch = null, initialValue = "" }) {
   const [searchQuery, setSearchQuery] = useState(initialValue);
   const navigate = useNavigate();
   const { currentTheme } = useThemeContext();
   const { t } = useLanguage();
-  const { user } = useAuth();
 
-  const handleSearch = (e) => {
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (onSearch) {
       onSearch(searchQuery);
