@@ -1,4 +1,80 @@
 import api from './api';
+import { AxiosError } from 'axios';
+
+// Define Advert interface
+interface Advert {
+  _id: string;
+  title: string;
+  description: string;
+  image?: string;
+  location?: string;
+  customFields?: { name: string; value: string }[];
+  tags?: string[];
+  visibility?: 'public' | 'private';
+  upvotes?: number;
+  views?: number;
+  upvoted?: boolean;
+}
+
+// Define response interfaces
+interface GetAdvertsResponse {
+  adverts: Advert[];
+}
+
+interface GetAdvertByIdResponse {
+  advert: Advert;
+}
+
+interface CreateAdvertResponse {
+  advert: Advert;
+  message: string;
+}
+
+interface UpdateAdvertResponse {
+  advert: Advert;
+  message: string;
+}
+
+interface DeleteAdvertResponse {
+  message: string;
+}
+
+interface GetUserAdvertsResponse {
+  adverts: Advert[];
+}
+
+interface UpvoteAdvertResponse {
+  upvotes: number;
+  upvoted: boolean;
+}
+
+interface TrackAdvertViewResponse {
+  views: number;
+}
+
+interface GetShareableLinkResponse {
+  url: string;
+}
+
+interface GetAdvertStatsResponse {
+  upvotes: number;
+  views: number;
+  upvoted: boolean;
+}
+
+interface GetPrivateShareableLinkResponse {
+  url: string;
+  key: string;
+  message: string;
+}
+
+// Define error response interface
+interface ApiError {
+  message: string;
+  requiresKey?: boolean; // From getAdvertById
+  limitReached?: boolean; // From createAdvert
+  cannotUpvoteOwn?: boolean; // From upvoteAdvert
+}
 
 // Description: Get all adverts
 // Endpoint: GET /api/adverts
@@ -11,13 +87,14 @@ export const getAdverts = async (params?: {
   radius?: number;
   lat?: number;
   lng?: number;
-}) => {
+}): Promise<GetAdvertsResponse> => {
   try {
-    const response = await api.get('/api/adverts', { params });
+    const response = await api.get<GetAdvertsResponse>('/api/adverts', { params });
     return response.data;
   } catch (error) {
     console.error(error);
-    throw new Error(error?.response?.data?.message || error.message);
+    const axiosError = error as AxiosError<ApiError>;
+    throw new Error(axiosError.response?.data?.message || axiosError.message);
   }
 };
 
@@ -25,18 +102,21 @@ export const getAdverts = async (params?: {
 // Endpoint: GET /api/adverts/:id
 // Request: { key?: string }
 // Response: { advert: Advert }
-export const getAdvertById = async (id: string, key?: string) => {
+export const getAdvertById = async (id: string, key?: string): Promise<GetAdvertByIdResponse> => {
   try {
     console.log(`API: Calling getAdvertById with ID: ${id} and key: ${key || 'none'}`);
-    const response = await api.get(`/api/adverts/${id}`, { params: key ? { key } : undefined });
+    const response = await api.get<GetAdvertByIdResponse>(`/api/adverts/${id}`, {
+      params: key ? { key } : undefined,
+    });
     console.log("API: getAdvertById response:", JSON.stringify(response.data));
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error(`API: Error in getAdvertById for ID ${id}:`, error);
-    if (error.response?.data?.requiresKey) {
-      throw new Error(error.response.data.message || 'This advert requires an access key');
+    const axiosError = error as AxiosError<ApiError>;
+    if (axiosError.response?.data?.requiresKey) {
+      throw new Error(axiosError.response.data.message || 'This advert requires an access key');
     }
-    throw new Error(error?.response?.data?.message || error.message);
+    throw new Error(axiosError.response?.data?.message || axiosError.message);
   }
 };
 
@@ -52,17 +132,17 @@ export const createAdvert = async (data: {
   customFields?: { name: string; value: string }[];
   tags?: string[];
   visibility?: 'public' | 'private';
-}) => {
+}): Promise<CreateAdvertResponse> => {
   try {
-    const response = await api.post('/api/adverts', data);
+    const response = await api.post<CreateAdvertResponse>('/api/adverts', data);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
-    // Check if the error is due to reaching the advert limit
-    if (error.response?.data?.limitReached) {
-      throw new Error(error.response.data.message);
+    const axiosError = error as AxiosError<ApiError>;
+    if (axiosError.response?.data?.limitReached) {
+      throw new Error(axiosError.response.data.message);
     }
-    throw new Error(error?.response?.data?.message || error.message);
+    throw new Error(axiosError.response?.data?.message || axiosError.message);
   }
 };
 
@@ -81,13 +161,14 @@ export const updateAdvert = async (
     tags?: string[];
     visibility?: 'public' | 'private';
   }
-) => {
+): Promise<UpdateAdvertResponse> => {
   try {
-    const response = await api.put(`/api/adverts/${id}`, data);
+    const response = await api.put<UpdateAdvertResponse>(`/api/adverts/${id}`, data);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
-    throw new Error(error?.response?.data?.message || error.message);
+    const axiosError = error as AxiosError<ApiError>;
+    throw new Error(axiosError.response?.data?.message || axiosError.message);
   }
 };
 
@@ -95,13 +176,14 @@ export const updateAdvert = async (
 // Endpoint: DELETE /api/adverts/:id
 // Request: {}
 // Response: { message: string }
-export const deleteAdvert = async (id: string) => {
+export const deleteAdvert = async (id: string): Promise<DeleteAdvertResponse> => {
   try {
-    const response = await api.delete(`/api/adverts/${id}`);
+    const response = await api.delete<DeleteAdvertResponse>(`/api/adverts/${id}`);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
-    throw new Error(error?.response?.data?.message || error.message);
+    const axiosError = error as AxiosError<ApiError>;
+    throw new Error(axiosError.response?.data?.message || axiosError.message);
   }
 };
 
@@ -109,10 +191,10 @@ export const deleteAdvert = async (id: string) => {
 // Endpoint: GET /api/adverts/user/me
 // Request: {}
 // Response: { adverts: Array<Advert> }
-export const getUserAdverts = async () => {
+export const getUserAdverts = async (): Promise<GetUserAdvertsResponse> => {
   try {
     console.log("API: Calling getUserAdverts");
-    const response = await api.get('/api/adverts/user/me');
+    const response = await api.get<GetUserAdvertsResponse>('/api/adverts/user/me');
     console.log("API: getUserAdverts response:", JSON.stringify(response.data));
     
     // Check if the response data is properly structured
@@ -127,9 +209,10 @@ export const getUserAdverts = async () => {
     }
     
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error("API: Error in getUserAdverts:", error);
-    throw new Error(error?.response?.data?.message || error.message);
+    const axiosError = error as AxiosError<ApiError>;
+    throw new Error(axiosError.response?.data?.message || axiosError.message);
   }
 };
 
@@ -137,31 +220,31 @@ export const getUserAdverts = async () => {
 // Endpoint: POST /api/adverts/:id/upvote
 // Request: {}
 // Response: { upvotes: number, upvoted: boolean }
-export const upvoteAdvert = async (id: string) => {
+export const upvoteAdvert = async (id: string): Promise<UpvoteAdvertResponse> => {
   try {
     console.log(`[CLIENT] Upvoting advert with ID: ${id}`);
     const url = `/api/adverts/${id}/upvote`;
     console.log(`[CLIENT] Sending POST request to: ${url}`);
     
-    const response = await api.post(url);
+    const response = await api.post<UpvoteAdvertResponse>(url);
     console.log(`[CLIENT] Upvote response:`, response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error(`[CLIENT] Error upvoting advert ${id}:`, error);
     
+    const axiosError = error as AxiosError<ApiError>;
     // Check if the error response contains the cannotUpvoteOwn flag
-    if (error.response?.data?.cannotUpvoteOwn) {
+    if (axiosError.response?.data?.cannotUpvoteOwn) {
       // Create a custom error object and set the flag directly on it
-      const customError = new Error(error.response.data.message);
-      // This is important - make the property accessible directly on the error
+      const customError = new Error(axiosError.response.data.message);
       Object.defineProperty(customError, 'cannotUpvoteOwn', {
         value: true,
-        enumerable: true
+        enumerable: true,
       });
       throw customError;
     }
     
-    throw new Error(error?.response?.data?.message || error.message);
+    throw new Error(axiosError.response?.data?.message || axiosError.message);
   }
 };
 
@@ -169,13 +252,14 @@ export const upvoteAdvert = async (id: string) => {
 // Endpoint: POST /api/adverts/:id/view
 // Request: {}
 // Response: { views: number }
-export const trackAdvertView = async (id: string) => {
+export const trackAdvertView = async (id: string): Promise<TrackAdvertViewResponse> => {
   try {
-    const response = await api.post(`/api/adverts/${id}/view`);
+    const response = await api.post<TrackAdvertViewResponse>(`/api/adverts/${id}/view`);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
-    throw new Error(error?.response?.data?.message || error.message);
+    const axiosError = error as AxiosError<ApiError>;
+    throw new Error(axiosError.response?.data?.message || axiosError.message);
   }
 };
 
@@ -183,13 +267,14 @@ export const trackAdvertView = async (id: string) => {
 // Endpoint: GET /api/adverts/:id/share
 // Request: {}
 // Response: { url: string }
-export const getShareableLink = async (id: string) => {
+export const getShareableLink = async (id: string): Promise<GetShareableLinkResponse> => {
   try {
-    const response = await api.get(`/api/adverts/${id}/share`);
+    const response = await api.get<GetShareableLinkResponse>(`/api/adverts/${id}/share`);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
-    throw new Error(error?.response?.data?.message || error.message);
+    const axiosError = error as AxiosError<ApiError>;
+    throw new Error(axiosError.response?.data?.message || axiosError.message);
   }
 };
 
@@ -197,16 +282,16 @@ export const getShareableLink = async (id: string) => {
 // Endpoint: GET /api/adverts/:id/stats
 // Request: {}
 // Response: { upvotes: number, views: number, upvoted: boolean }
-export const getAdvertStats = async (id: string) => {
+export const getAdvertStats = async (id: string): Promise<GetAdvertStatsResponse> => {
   try {
     console.log(`[CLIENT] Getting stats for advert ${id}`);
-    // Fix: add /api prefix to the endpoint
-    const response = await api.get(`/api/adverts/${id}/stats`);
+    const response = await api.get<GetAdvertStatsResponse>(`/api/adverts/${id}/stats`);
     console.log(`[CLIENT] Stats response:`, response.data);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error(`[CLIENT] Error getting advert stats for ${id}:`, error);
-    throw new Error(error?.response?.data?.message || error.message);
+    const axiosError = error as AxiosError<ApiError>;
+    throw new Error(axiosError.response?.data?.message || axiosError.message);
   }
 };
 
@@ -214,12 +299,13 @@ export const getAdvertStats = async (id: string) => {
 // Endpoint: GET /api/adverts/:id/share-private
 // Request: {}
 // Response: { url: string, key: string, message: string }
-export const getPrivateShareableLink = async (id: string) => {
+export const getPrivateShareableLink = async (id: string): Promise<GetPrivateShareableLinkResponse> => {
   try {
-    const response = await api.get(`/api/adverts/${id}/share-private`);
+    const response = await api.get<GetPrivateShareableLinkResponse>(`/api/adverts/${id}/share-private`);
     return response.data;
-  } catch (error: any) {
+  } catch (error) {
     console.error(error);
-    throw new Error(error?.response?.data?.message || error.message);
+    const axiosError = error as AxiosError<ApiError>;
+    throw new Error(axiosError.response?.data?.message || axiosError.message);
   }
 };
