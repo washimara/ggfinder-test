@@ -72,8 +72,7 @@ export function EngagementMetrics({
   const handleUpvote = async () => {
     if (!user) {
       toast({
-        title: "Authentication required",
-        description: "Please sign in to upvote posts",
+        title: "Authentication required: Please sign in to upvote posts",
         variant: "destructive",
       });
       return;
@@ -102,8 +101,7 @@ export function EngagementMetrics({
         }
 
         toast({
-          title: "Post saved",
-          description: "This post has been added to your saved posts",
+          title: "Post saved: This post has been added to your saved posts",
         });
       } else {
         // Remove from saved posts when un-upvoted
@@ -118,14 +116,12 @@ export function EngagementMetrics({
       // Check if this is the special case of trying to upvote own post
       if (error.cannotUpvoteOwn) {
         toast({
-          title: "Cannot upvote own post",
-          description: "You cannot upvote your own posts. Try upvoting posts from other users!",
-          variant: "warning",
+          title: "Cannot upvote own post: You cannot upvote your own posts. Try upvoting posts from other users!",
+          variant: "destructive",
         });
       } else {
         toast({
-          title: "Error",
-          description: error.message,
+          title: `Error: ${error.message}`,
           variant: "destructive",
         });
       }
@@ -153,23 +149,20 @@ export function EngagementMetrics({
           url: response.url,
         });
         toast({
-          title: "Shared successfully",
-          description: "The post has been shared",
+          title: "Shared successfully: The post has been shared",
         });
       } else {
         // Fallback to clipboard
         await navigator.clipboard.writeText(response.url);
         toast({
-          title: "Link copied",
-          description: "The link has been copied to your clipboard",
+          title: "Link copied: The link has been copied to your clipboard",
         });
       }
     } catch (error: any) {
       // User cancelled share action or other error
       if (error.name !== "AbortError") {
         toast({
-          title: "Error",
-          description: error.message,
+          title: `Error: ${error.message}`,
           variant: "destructive",
         });
       }
@@ -189,8 +182,7 @@ export function EngagementMetrics({
       setShowPrivateDialog(true);
     } catch (error: any) {
       toast({
-        title: "Error generating private link",
-        description: error.message,
+        title: `Error generating private link: ${error.message}`,
         variant: "destructive",
       });
     } finally {
@@ -203,13 +195,11 @@ export function EngagementMetrics({
     try {
       await navigator.clipboard.writeText(text);
       toast({
-        title: "Copied to clipboard",
-        description: "The text has been copied to your clipboard",
+        title: "Copied to clipboard: The text has been copied to your clipboard",
       });
     } catch (error) {
       toast({
-        title: "Failed to copy",
-        description: "Could not copy text to clipboard",
+        title: "Failed to copy: Could not copy text to clipboard",
         variant: "destructive",
       });
     }
