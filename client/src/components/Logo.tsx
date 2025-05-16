@@ -1,5 +1,4 @@
 import { useThemeContext } from "@/contexts/ThemeContext";
-import { useTheme } from "@/components/ui/theme-provider";
 import { useMobile } from "@/hooks/useMobile";
 
 interface LogoProps {
@@ -9,7 +8,6 @@ interface LogoProps {
 
 export function Logo({ className = "", isHeader = false }: LogoProps) {
   const { currentTheme } = useThemeContext();
-  const { theme } = useTheme();
   const isMobile = useMobile();
 
   // Logo size based on screen size and whether it's in the header
