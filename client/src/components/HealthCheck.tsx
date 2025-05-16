@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/useToast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { AlertCircle, CheckCircle, Database } from "lucide-react";
+import { AlertCircle, Database } from "lucide-react";
 import api from "@/api/api";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
