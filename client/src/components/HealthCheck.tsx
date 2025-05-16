@@ -30,16 +30,14 @@ export function HealthCheck() {
       // Show toast for any DB issues
       if (response.data.database.supabase !== 'connected') {
         toast({
-          title: t("databaseIssue"),
-          description: t("supabaseDatabaseDisconnected"),
+          title: `${t("databaseIssue")}: ${t("supabaseDatabaseDisconnected")}`,
           variant: "destructive",
         });
       }
     } catch (err: any) {
       setError(err.message || t("errorCheckingHealth"));
       toast({
-        title: t("healthCheckFailed"),
-        description: err.message || t("errorCheckingHealth"),
+        title: `${t("healthCheckFailed")}: ${err.message || t("errorCheckingHealth")}`,
         variant: "destructive",
       });
     } finally {
@@ -54,7 +52,7 @@ export function HealthCheck() {
     const interval = setInterval(checkHealth, 5 * 60 * 1000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [t]); // Removed `toast` from dependencies as it's stable and doesn't need to trigger re-renders
 
   if (loading) return null;
   
@@ -71,7 +69,7 @@ export function HealthCheck() {
   // Only show alert if there's an issue
   if (health && (health.status !== 'ok' || health.database.supabase !== 'connected')) {
     return (
-      <Alert variant={health.database.supabase !== 'connected' ? "destructive" : "warning"} className="mt-4">
+      <Alert variant={health.database.supabase !== 'connected' ? "destructive" : "default"} className="mt-4">
         <Database className="h-4 w-4" />
         <AlertTitle>{t("systemStatus")}: {health.status}</AlertTitle>
         <AlertDescription>
