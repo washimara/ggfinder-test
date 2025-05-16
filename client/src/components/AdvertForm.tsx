@@ -2,7 +2,6 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { X, Plus } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useToast } from "@/hooks/useToast"
 import { createAdvert, updateAdvert } from "@/api/adverts"
@@ -63,8 +62,7 @@ export function AdvertForm({ advert, isEditing = false }: AdvertFormProps) {
   const addCustomField = () => {
     if (customFields.length >= MAX_CUSTOM_FIELDS) {
       toast({
-        title: "Limit reached",
-        description: `You can only add up to ${MAX_CUSTOM_FIELDS} custom fields.`,
+        title: `Limit reached: You can only add up to ${MAX_CUSTOM_FIELDS} custom fields.`,
         variant: "destructive",
       })
       return
@@ -84,8 +82,7 @@ export function AdvertForm({ advert, isEditing = false }: AdvertFormProps) {
   const addTag = () => {
     if (tags.length >= MAX_TAGS) {
       toast({
-        title: "Limit reached",
-        description: `You can only add up to ${MAX_TAGS} tags.`,
+        title: `Limit reached: You can only add up to ${MAX_TAGS} tags.`,
         variant: "destructive",
       })
       return
@@ -112,21 +109,18 @@ export function AdvertForm({ advert, isEditing = false }: AdvertFormProps) {
       if (isEditing && advert) {
         await updateAdvert(advert._id, data)
         toast({
-          title: "Success",
-          description: "Advert updated successfully",
+          title: "Success: Advert updated successfully",
         })
       } else {
         await createAdvert(data)
         toast({
-          title: "Success",
-          description: "Advert created successfully",
+          title: "Success: Advert created successfully",
         })
       }
       navigate("/my-adverts")
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message,
+        title: `Error: ${error.message}`,
         variant: "destructive",
       })
     }
