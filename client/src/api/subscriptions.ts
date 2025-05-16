@@ -1,86 +1,109 @@
-import api from './api';
+import { useState, useEffect } from "react"
+import { AdvertForm } from "@/components/AdvertForm"
+import { useThemeContext } from "@/contexts/ThemeContext"
+import { useToast } from "@/hooks/useToast"
+import { useNavigate } from "react-router-dom"
+import { getUserAdverts } from "@/api/adverts"
+import { checkPremiumAccess } from "@/api/subscriptions"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Crown, Loader2 } from "lucide-react"
+import { Link } from "react-router-dom"
 
-// Description: Create a new subscription
-// Endpoint: POST /api/subscriptions
-// Request: { amount: number, currency: string, paymentMethod: string, autoRenew: boolean }
-// Response: { success: boolean, subscription: object, user: object }
-export const createSubscription = async (data: { 
-  amount: number; 
-  currency?: string; 
-  paymentMethod: string; 
-  autoRenew?: boolean;
-}) => {
-  try {
-    const response = await api.post('/api/subscriptions', data);
-    return response.data;
-  } catch (error: any) {
-    throw new Error(error?.response?.data?.message || error.message);
-  }
-};
+export function CreateAdvertPage() {
+  const { currentTheme } = useThemeContext()
+  const { toast } = useToast()
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(true)
+  const [canCreate, setCanCreate] = useState(true)
+  const [advertCount, setAdvertCount] = useState(0)
+  const [isPremium, setIsPremium] = useState(false)
 
-// Description: Get user's active subscription
-// Endpoint: GET /api/subscriptions/active
-// Request: {}
-// Response: { success: boolean, subscription: object|null }
-export const getActiveSubscription = async () => {
-  try {
-    const response = await api.get('/api/subscriptions/active');
-    return response.data;
-  } catch (error: any) {
-    throw new Error(error?.response?.data?.message || error.message);
-  }
-};
+  useEffect(() => {
+    const checkLimits = async () => {
+      try {
+        setLoading(true)
+        
+        // Check premium status
+        const premiumResponse = await checkPremiumAccess();
+        // Map the API response to the expected shape
+        const hasPremiumAccess = premiumResponse.hasPremiumAccess ?? premiumResponse.has_premium_access ?? false;
+        setIsPremium(hasPremiumAccess);
+        
+        // If premium, no need to check counts
+        if (hasPremiumAccess) {
+          setCanCreate(true)
+          setLoading(false)
+          return
+        }
+        
+        // Check advert count for free users
+        const advertsResponse = await getUserAdverts()
+        const count = advertsResponse.adverts.length
+        setAdvertCount(count)
+        setCanCreate(count < 3)
+      } catch (error: any) {
+        toast({
+          title: `Error: ${error.message}`,
+          variant: "destructive",
+        })
+        navigate("/my-adverts")
+      } finally {
+        setLoading(false)
+      }
+    }
 
-// Description: Get user's subscription history
-// Endpoint: GET /api/subscriptions/history
-// Request: {}
-// Response: { success: boolean, subscriptions: array }
-export const getSubscriptionHistory = async () => {
-  try {
-    const response = await api.get('/api/subscriptions/history');
-    console.log("API response for subscription history:", response.data);
-    return response.data;
-  } catch (error: any) {
-    console.error("Error in getSubscriptionHistory API call:", error);
-    throw new Error(error?.response?.data?.message || error.message);
-  }
-};
+    checkLimits()
+  }, [])
 
-// Description: Cancel a subscription
-// Endpoint: POST /api/subscriptions/:subscriptionId/cancel
-// Request: {}
-// Response: { success: boolean, subscription: object }
-export const cancelSubscription = async (subscriptionId: string) => {
-  try {
-    const response = await api.post(`/api/subscriptions/${subscriptionId}/cancel`);
-    return response.data;
-  } catch (error: any) {
-    throw new Error(error?.response?.data?.message || error.message);
+  if (loading) {
+    return (
+      <div className="py-12 flex justify-center">
+        <Loader2 className={`h-8 w-8 animate-spin ${currentTheme.textSecondary}`} />
+      </div>
+    )
   }
-};
 
-// Description: Renew a subscription
-// Endpoint: POST /api/subscriptions/:subscriptionId/renew
-// Request: {}
-// Response: { success: boolean, subscription: object, user: object }
-export const renewSubscription = async (subscriptionId: string) => {
-  try {
-    const response = await api.post(`/api/subscriptions/${subscriptionId}/renew`);
-    return response.data;
-  } catch (error: any) {
-    throw new Error(error?.response?.data?.message || error.message);
+  if (!canCreate) {
+    return (
+      <div className="py-8 max-w-3xl mx-auto">
+        <h1 className={`text-3xl font-bold mb-8 ${currentTheme.textPrimary}`}>Create Advert</h1>
+        <Card className="border-amber-500/50">
+          <CardContent className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Free Tier Limit Reached</h2>
+            <p className="mb-6">
+              You've created {advertCount} adverts, which is the maximum allowed on the free tier.
+              To create more adverts, please upgrade to our premium subscription.
+            </p>
+            <div className="flex justify-center">
+              <Button asChild className={currentTheme.buttonPrimary}>
+                <Link to="/profile?tab=support">
+                  <Crown className="mr-2 h-4 w-4" /> Upgrade to Premium
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
-};
 
-// Description: Check premium access
-// Endpoint: GET /api/subscriptions/check-premium
-// Request: {}
-// Response: { success: boolean, hasPremiumAccess: boolean }
-export const checkPremiumAccess = async () => {
-  try {
-    const response = await api.get('/api/subscriptions/check-premium');
-    return response.data;
-  } catch (error: any) {
-    throw new Error(error?.response?.data?.message || error.message);
-  }
-};
+  return (
+    <div className="py-8 max-w-3xl mx-auto">
+      <h1 className={`text-3xl font-bold mb-8 ${currentTheme.textPrimary}`}>Create Advert</h1>
+      {!isPremium && (
+        <Card className="mb-6 border-amber-500/50">
+          <CardContent className="p-4">
+            <p className="text-sm">
+              Free tier: {advertCount}/3 adverts used. 
+              <Link to="/profile?tab=support" className="ml-1 text-blue-500 hover:underline">
+                Upgrade to premium
+              </Link> for unlimited adverts.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+      <AdvertForm />
+    </div>
+  )
+}
