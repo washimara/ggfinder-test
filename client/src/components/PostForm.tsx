@@ -23,7 +23,6 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
 
 const MAX_CUSTOM_FIELDS = 5
 const MAX_TAGS = 5
@@ -76,8 +75,7 @@ export function PostForm({ post, isEditing = false }: PostFormProps) {
   const addCustomField = () => {
     if (customFields.length >= MAX_CUSTOM_FIELDS) {
       toast({
-        title: t("limitReached"),
-        description: t("customFieldsLimit").replace("{limit}", MAX_CUSTOM_FIELDS.toString()),
+        title: `${t("limitReached")}: ${t("customFieldsLimit").replace("{limit}", MAX_CUSTOM_FIELDS.toString())}`,
         variant: "destructive",
       })
       return
@@ -97,8 +95,7 @@ export function PostForm({ post, isEditing = false }: PostFormProps) {
   const addTag = () => {
     if (tags.length >= MAX_TAGS) {
       toast({
-        title: t("limitReached"),
-        description: t("tagsLimit").replace("{limit}", MAX_TAGS.toString()),
+        title: `${t("limitReached")}: ${t("tagsLimit").replace("{limit}", MAX_TAGS.toString())}`,
         variant: "destructive",
       })
       return
