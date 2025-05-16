@@ -12,11 +12,6 @@ export function Logo({ className = "", isHeader = false }: LogoProps) {
   const { theme } = useTheme();
   const isMobile = useMobile();
 
-  // Determine text color based on theme - ensure white text for dark themes
-  const textColorClass = theme === "dark" || currentTheme.value === "green-forest"
-    ? "text-white"
-    : currentTheme.textPrimary;
-
   // Logo size based on screen size and whether it's in the header
   const logoSize = isHeader
     ? isMobile ? "text-[64px]" : "text-[92px]" // Much larger for homepage header
