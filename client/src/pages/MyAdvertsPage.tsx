@@ -10,7 +10,6 @@ import { PlusCircle, Loader2, Crown } from "lucide-react"
 import { useThemeContext } from "@/contexts/ThemeContext"
 import { useTheme } from "@/components/ui/theme-provider"
 import { Card, CardContent } from "@/components/ui/card"
-import { useLanguage } from "@/contexts/LanguageContext"
 
 export function MyAdvertsPage() {
   const [adverts, setAdverts] = useState<Advert[]>([])
@@ -19,7 +18,6 @@ export function MyAdvertsPage() {
   const { toast } = useToast()
   const { currentTheme } = useThemeContext()
   const { theme } = useTheme()
-  const { t } = useLanguage()
 
   // Determine text colors based on theme
   const textColor = theme === "dark"
@@ -58,7 +56,13 @@ export function MyAdvertsPage() {
           });
         }
         
-        setAdverts(advertsResponse.adverts);
+        setAdverts(
+          advertsResponse.adverts.map((advert: Omit<Advert, "createdAt" | "userId"> & { createdAt?: string; userId?: string }) => ({
+            ...advert,
+            createdAt: advert.createdAt || new Date().toISOString(),
+            userId: advert.userId || "unknown",
+          }))
+        );
 
         // Check premium status
         const premiumResponse = await checkPremiumAccess();
@@ -67,8 +71,7 @@ export function MyAdvertsPage() {
       } catch (error: any) {
         console.error("MyAdvertsPage: Error fetching data:", error);
         toast({
-          title: "Error",
-          description: error.message,
+          title: `Error: ${error.message}`,
           variant: "destructive",
         });
       } finally {
@@ -77,7 +80,7 @@ export function MyAdvertsPage() {
     };
 
     fetchData();
-  }, [toast]);
+  }, []);
 
   // Check if user has reached the free tier limit
   const hasReachedLimit = !isPremium && adverts.length >= 3;
@@ -92,8 +95,7 @@ export function MyAdvertsPage() {
           onClick={hasReachedLimit ? (e) => {
             e.preventDefault();
             toast({
-              title: "Limit Reached",
-              description: "You've reached the maximum of 3 adverts for free tier. Please upgrade to premium to create more.",
+              title: "Limit Reached: You've reached the maximum of 3 adverts for free tier. Please upgrade to premium to create more.",
               variant: "destructive",
             });
           } : undefined}
