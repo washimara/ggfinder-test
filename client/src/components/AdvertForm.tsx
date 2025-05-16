@@ -19,7 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
+import { X, Plus } from "lucide-react"
 
 const MAX_CUSTOM_FIELDS = 5
 const MAX_TAGS = 5
