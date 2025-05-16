@@ -11,7 +11,7 @@
     "server": "cd server && npm run start",
     "start": "concurrently -n \"client,server\" \"npm run client\" \"npm run server\"",
     "dev": "concurrently -n \"client,server\" \"npm run client\" \"npm run server\"",
-    "build": "cd client && npm run build",
+    "build": "cd client && npm install && npm run build",
     "heroku-postbuild": "npm run client-install && npm run build",
     "prepare-for-pythagora": "npm run install-all"
   },
