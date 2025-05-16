@@ -21,11 +21,15 @@ export function EditAdvertPage() {
       try {
         setLoading(true)
         const response = await getAdvertById(id)
-        setAdvert(response.advert)
+        const advert = response.advert as Omit<Advert, "createdAt" | "userId"> & { createdAt?: string; userId?: string };
+        setAdvert({
+          ...advert,
+          createdAt: advert.createdAt || new Date().toISOString(),
+          userId: advert.userId || "unknown",
+        })
       } catch (error: any) {
         toast({
-          title: "Error",
-          description: error.message,
+          title: `Error: ${error.message}`,
           variant: "destructive",
         })
         navigate("/my-adverts")
@@ -35,7 +39,7 @@ export function EditAdvertPage() {
     }
 
     fetchAdvert()
-  }, [id, toast, navigate])
+  }, [id])
 
   if (loading) {
     return (
