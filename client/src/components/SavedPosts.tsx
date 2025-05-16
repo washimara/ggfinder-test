@@ -70,43 +70,10 @@ export function SavedPosts() {
         setSavedPosts(posts.filter(Boolean) as Advert[])
       } catch (error: any) {
         toast({
-          title: `Error: ${error.message}`,
+          title: `${t("error")}: ${error.message}`, // Updated for consistency
           variant: "destructive",
         })
       } finally {
         setLoading(false)
       }
     }
-
-    fetchSavedPosts()
-  }, [])
-
-  if (loading) {
-    return (
-      <div className="flex justify-center py-12">
-        <Loader2 className={`h-8 w-8 animate-spin ${secondaryTextColor}`} />
-      </div>
-    )
-  }
-
-  if (savedPosts.length === 0) {
-    return (
-      <div className={`text-center py-12 ${bgColor} rounded-lg backdrop-blur-sm`}>
-        <h2 className={`text-xl font-medium mb-2 ${textColor}`}>{t("noSavedPosts")}</h2>
-        <p className={`${secondaryTextColor}`}>
-          {t("upvotePosts")}
-        </p>
-      </div>
-    )
-  }
-
-  return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {savedPosts.map((post) => (
-          <AdvertCard key={post._id} advert={post} />
-        ))}
-      </div>
-    </div>
-  )
-}
