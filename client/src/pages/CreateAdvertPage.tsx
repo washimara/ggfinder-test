@@ -42,8 +42,7 @@ export function CreateAdvertPage() {
         setCanCreate(count < 3)
       } catch (error: any) {
         toast({
-          title: "Error",
-          description: error.message,
+          title: `Error: ${error.message}`,
           variant: "destructive",
         })
         navigate("/my-adverts")
@@ -53,7 +52,7 @@ export function CreateAdvertPage() {
     }
 
     checkLimits()
-  }, [toast, navigate])
+  }, [])
 
   if (loading) {
     return (
