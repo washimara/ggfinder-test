@@ -120,18 +120,16 @@ export function PostForm({ post, isEditing = false }: PostFormProps) {
       }
 
       if (isEditing && post) {
-        const result = await updatePost(post.id || post._id, data);
+        await updatePost(post._id, data);
         toast({
-          title: t("success"),
-          description: t("postUpdated"),
+          title: `${t("success")}: ${t("postUpdated")}`,
         })
       } else {
         console.log("Creating post with data:", data);
-        const result = await createPost(data);
-        console.log("Post created:", result);
+        await createPost(data);
+        console.log("Post created");
         toast({
-          title: t("success"),
-          description: t("postCreated"),
+          title: `${t("success")}: ${t("postCreated")}`,
         })
       }
 
@@ -139,8 +137,7 @@ export function PostForm({ post, isEditing = false }: PostFormProps) {
     } catch (error: any) {
       console.error("Post form submission error:", error);
       toast({
-        title: t("error"),
-        description: error.message,
+        title: `${t("error")}: ${error.message}`,
         variant: "destructive",
       })
     }
