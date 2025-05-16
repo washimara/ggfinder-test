@@ -57,8 +57,7 @@ export function Register() {
       navigate("/")
     } catch (error: any) {
       toast({
-        title: "Error",
-        description: error.message,
+        title: `Error: ${error.message}`,
         variant: "destructive",
       })
     } finally {
