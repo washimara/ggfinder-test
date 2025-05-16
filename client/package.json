@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "cd client && npm install && npm run build",
     "start": "vite --port 5173",
     "dev": "vite",
     "build": "tsc && vite build",
