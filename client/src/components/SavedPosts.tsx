@@ -52,22 +52,25 @@ export function SavedPosts() {
         const postsPromises = savedPostIds.map(async (id: string) => {
           try {
             console.log(`SavedPosts: Fetching advert with ID: ${id}`);
-            const response = await getAdvertById(id)
+            const response = await getAdvertById(id);
             console.log(`SavedPosts: Received advert for ID ${id}:`, response.advert);
-            return response.advert
+            return {
+              ...response.advert,
+              createdAt: response.advert.createdAt || new Date().toISOString(), // Default value
+              userId: response.advert.userId || "unknown", // Default value
+            };
           } catch (error) {
             console.error(`Failed to fetch post ${id}:`, error)
             return null
           }
         })
 
-        const posts = await Promise.all(postsPromises)
+        const posts = await Promise.all(postsPromises);
         console.log("SavedPosts: All fetched adverts:", posts);
         setSavedPosts(posts.filter(Boolean) as Advert[])
       } catch (error: any) {
         toast({
-          title: "Error",
-          description: error.message,
+          title: `Error: ${error.message}`,
           variant: "destructive",
         })
       } finally {
@@ -76,7 +79,7 @@ export function SavedPosts() {
     }
 
     fetchSavedPosts()
-  }, [toast])
+  }, [])
 
   if (loading) {
     return (
