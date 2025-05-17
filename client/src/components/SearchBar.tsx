@@ -3,7 +3,19 @@ import { useState } from "react";
 import { useThemeContext } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-export function SearchBar({ className = "", placeholder = "", onSearch = null, initialValue = "" }) {
+interface SearchBarProps {
+  className?: string;
+  placeholder?: string;
+  onSearch?: ((query: string) => void) | null;
+  initialValue?: string;
+}
+
+export function SearchBar({
+  className = "",
+  placeholder = "",
+  onSearch = null,
+  initialValue = "",
+}: SearchBarProps) {
   const [searchQuery, setSearchQuery] = useState(initialValue);
   const navigate = useNavigate();
   const { currentTheme } = useThemeContext();
