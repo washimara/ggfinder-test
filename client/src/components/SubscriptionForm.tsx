@@ -23,13 +23,6 @@ export const SubscriptionForm = ({ onSuccess }: SubscriptionFormProps) => {
   const [amount, setAmount] = useState(10);
   const [autoRenew, setAutoRenew] = useState(true);
 
-  // Determine text colors based on theme
-  const textColor = theme === "dark"
-    ? "text-white"
-    : currentTheme.value === "green-forest"
-      ? "text-black"
-      : currentTheme.textPrimary;
-
   const secondaryTextColor = theme === "dark"
     ? "text-white"
     : currentTheme.value === "green-forest"
@@ -41,8 +34,7 @@ export const SubscriptionForm = ({ onSuccess }: SubscriptionFormProps) => {
 
     if (amount < 5) {
       toast({
-        title: t("error"),
-        description: t("minimumSubscriptionAmount"),
+        title: `${t("error")}: ${t("minimumSubscriptionAmount")}`,
         variant: "destructive",
       });
       return;
@@ -51,32 +43,30 @@ export const SubscriptionForm = ({ onSuccess }: SubscriptionFormProps) => {
     setIsLoading(true);
 
     try {
-      const response = await createSubscription({
+      await createSubscription({
         amount,
         paymentMethod: "creditCard",
-        autoRenew
+        autoRenew,
       });
 
       toast({
-        title: t("success"),
-        description: t("subscriptionCreated"),
+        title: `${t("success")}: ${t("subscriptionCreated")}`,
       });
 
       // Reset form
       setAmount(10);
       setAutoRenew(true);
-      
+
       // Call onSuccess callback if provided
       if (onSuccess) {
         onSuccess();
       }
-      
+
       // Force reload the page to update all components
       window.location.reload();
     } catch (error: any) {
       toast({
-        title: t("error"),
-        description: error.message,
+        title: `${t("error")}: ${error.message}`,
         variant: "destructive",
       });
     } finally {
