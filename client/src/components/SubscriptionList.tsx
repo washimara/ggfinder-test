@@ -6,13 +6,29 @@ import { useThemeContext } from "@/contexts/ThemeContext";
 import {
   getSubscriptionHistory,
   cancelSubscription,
-  renewSubscription
+  renewSubscription,
 } from "@/api/subscriptions";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { RefreshCcw, X } from "lucide-react";
 
 interface Subscription {
@@ -25,6 +41,17 @@ interface Subscription {
   amount: number;
   currency: string;
   createdAt: string;
+}
+
+// Define the response type for getSubscriptionHistory
+interface SubscriptionHistoryResponse {
+  success: boolean;
+  subscriptions: Subscription[];
+  hasPremiumAccess: boolean;
+  premiumUser?: {
+    startDate: string;
+    endDate: string;
+  };
 }
 
 export const SubscriptionList = () => {
@@ -54,23 +81,28 @@ export const SubscriptionList = () => {
     setLoading(true);
     try {
       console.log("Fetching subscription history...");
-      const response = await getSubscriptionHistory();
+      const response: SubscriptionHistoryResponse = await getSubscriptionHistory();
       console.log("Subscription history response:", response);
 
       // If user has premium access but no subscriptions in the response,
       // Create a mock subscription from the user data
-      if (response.hasPremiumAccess && (!response.subscriptions || response.subscriptions.length === 0)) {
+      if (
+        response.hasPremiumAccess &&
+        (!response.subscriptions || response.subscriptions.length === 0)
+      ) {
         console.log("User has premium access, creating mock subscription");
-        const mockSubscription = {
+        const mockSubscription: Subscription = {
           _id: `mock-sub-${Date.now()}`,
-          plan: 'premium',
-          status: 'active',
+          plan: "premium",
+          status: "active",
           startDate: response.premiumUser?.startDate || new Date().toISOString(),
-          endDate: response.premiumUser?.endDate || new Date(Date.now() + 30*24*60*60*1000).toISOString(),
+          endDate:
+            response.premiumUser?.endDate ||
+            new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           autoRenew: true,
           amount: 10,
-          currency: 'USD',
-          createdAt: response.premiumUser?.startDate || new Date().toISOString()
+          currency: "USD",
+          createdAt: response.premiumUser?.startDate || new Date().toISOString(),
         };
         console.log("Created mock subscription:", mockSubscription);
         setSubscriptions([mockSubscription]);
@@ -147,14 +179,14 @@ export const SubscriptionList = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active':
-        return 'bg-green-500 text-white';
-      case 'cancelled':
-        return 'bg-yellow-500 text-black';
-      case 'expired':
-        return 'bg-gray-500 text-white';
+      case "active":
+        return "bg-green-500 text-white";
+      case "cancelled":
+        return "bg-yellow-500 text-black";
+      case "expired":
+        return "bg-gray-500 text-white";
       default:
-        return 'bg-blue-500 text-white';
+        return "bg-blue-500 text-white";
     }
   };
 
@@ -204,62 +236,72 @@ export const SubscriptionList = () => {
                       <h3 className={`font-medium ${textColor}`}>
                         {t("premiumPlan")}
                       </h3>
-                      <Badge
-                        className={getStatusColor(subscription.status)}
-                      >
+                      <Badge className={getStatusColor(subscription.status)}>
                         {t(subscription.status)}
                       </Badge>
                     </div>
                     <div className="mt-2 space-y-1 text-sm">
                       <p className={secondaryTextColor}>
-                        <span className="font-medium">{t("amount")}:</span> ${subscription.amount}/{t("month")}
+                        <span className="font-medium">{t("amount")}:</span>{" "}
+                        ${subscription.amount}/{t("month")}
                       </p>
                       <p className={secondaryTextColor}>
-                        <span className="font-medium">{t("period")}:</span> {formatDate(subscription.startDate)} - {formatDate(subscription.endDate)}
+                        <span className="font-medium">{t("period")}:</span>{" "}
+                        {formatDate(subscription.startDate)} -{" "}
+                        {formatDate(subscription.endDate)}
                       </p>
                       <p className={secondaryTextColor}>
-                        <span className="font-medium">{t("autoRenew")}:</span> {subscription.autoRenew ? t("yes") : t("no")}
+                        <span className="font-medium">{t("autoRenew")}:</span>{" "}
+                        {subscription.autoRenew ? t("yes") : t("no")}
                       </p>
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    {subscription.status === 'active' && subscription.autoRenew && (
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={cancelling === subscription._id}
-                            className="bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
-                          >
-                            {cancelling === subscription._id ? t("cancelling") : (
-                              <>
-                                <X className="h-4 w-4 mr-1" />
-                                {t("cancelAutoRenewal")}
-                              </>
-                            )}
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>{t("confirmCancellation")}</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              {t("cancelAutoRenewalWarning")}
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>{t("keepSubscription")}</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleCancel(subscription._id)}
-                              className="bg-red-600"
+                    {subscription.status === "active" &&
+                      subscription.autoRenew && (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={cancelling === subscription._id}
+                              className="bg-red-50 text-red-600 border-red-200 hover:bg-red-100"
                             >
-                              {t("confirmCancel")}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    )}
-                    {(subscription.status === 'cancelled' || subscription.status === 'expired') && (
+                              {cancelling === subscription._id
+                                ? t("cancelling")
+                                : (
+                                  <>
+                                    <X className="h-4 w-4 mr-1" />
+                                    {t("cancelAutoRenewal")}
+                                  </>
+                                )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                {t("confirmCancellation")}
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {t("cancelAutoRenewalWarning")}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>
+                                {t("keepSubscription")}
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleCancel(subscription._id)}
+                                className="bg-red-600"
+                              >
+                                {t("confirmCancel")}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
+                    {(subscription.status === "cancelled" ||
+                      subscription.status === "expired") && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -267,12 +309,14 @@ export const SubscriptionList = () => {
                         disabled={renewing === subscription._id}
                         className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100"
                       >
-                        {renewing === subscription._id ? t("renewing") : (
-                          <>
-                            <RefreshCcw className="h-4 w-4 mr-1" />
-                            {t("renew")}
-                          </>
-                        )}
+                        {renewing === subscription._id
+                          ? t("renewing")
+                          : (
+                            <>
+                              <RefreshCcw className="h-4 w-4 mr-1" />
+                              {t("renew")}
+                            </>
+                          )}
                       </Button>
                     )}
                   </div>
