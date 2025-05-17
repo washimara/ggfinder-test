@@ -1,10 +1,9 @@
-
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
 
-import { useIsMobile } from "@/hooks/useMobile"
+import { useMobile } from "@/hooks/useMobile"  // Changed from useIsMobile to useMobile
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -66,7 +65,7 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
-    const isMobile = useIsMobile()
+    const { isMobile } = useMobile()  // Changed from useIsMobile to useMobile
     const [openMobile, setOpenMobile] = React.useState(false)
 
     // This is the internal state of the sidebar.
@@ -760,4 +759,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
