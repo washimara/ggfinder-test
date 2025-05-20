@@ -30,6 +30,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { RefreshCcw, X } from "lucide-react";
+import { ToastProps } from "@/components/ui/use-toast"; // Import ToastProps
 
 interface Subscription {
   _id: string;
@@ -52,6 +53,11 @@ interface SubscriptionHistoryResponse {
     startDate: string;
     endDate: string;
   };
+}
+
+// Extend ToastProps to include description explicitly
+interface CustomToastProps extends ToastProps {
+  description?: string;
 }
 
 export const SubscriptionList = () => {
@@ -119,9 +125,9 @@ export const SubscriptionList = () => {
       console.error("Error fetching subscriptions:", error);
       toast({
         title: t("error"),
-        message: error.message, // Changed from description to message
+        description: error.message,
         variant: "destructive",
-      });
+      } as CustomToastProps);
     } finally {
       setLoading(false);
     }
@@ -138,16 +144,16 @@ export const SubscriptionList = () => {
       await cancelSubscription(subscriptionId);
       toast({
         title: t("success"),
-        message: t("subscriptionCancelled"), // Changed from description to message
-      });
+        description: t("subscriptionCancelled"),
+      } as CustomToastProps);
       fetchSubscriptions();
     } catch (error: any) {
       console.error("Error cancelling subscription:", error);
       toast({
         title: t("error"),
-        message: error.message, // Changed from description to message
+        description: error.message,
         variant: "destructive",
-      });
+      } as CustomToastProps);
     } finally {
       setCancelling(null);
     }
@@ -160,16 +166,16 @@ export const SubscriptionList = () => {
       await renewSubscription(subscriptionId);
       toast({
         title: t("success"),
-        message: t("subscriptionRenewed"), // Changed from description to message
-      });
+        description: t("subscriptionRenewed"),
+      } as CustomToastProps);
       fetchSubscriptions();
     } catch (error: any) {
       console.error("Error renewing subscription:", error);
       toast({
         title: t("error"),
-        message: error.message, // Changed from description to message
+        description: error.message,
         variant: "destructive",
-      });
+      } as CustomToastProps);
     } finally {
       setRenewing(null);
     }
