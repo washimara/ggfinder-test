@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react"
 import { AdvertForm } from "@/components/AdvertForm"
 import { useThemeContext } from "@/contexts/ThemeContext"
-import { useAuth } from "@/contexts/AuthContext" // Added useAuth import
 import { useToast } from "@/hooks/useToast"
 import { useNavigate } from "react-router-dom"
 import { getUserAdverts } from "@/api/adverts"
+import { getSubscriptionHistory } from "@/api/subscriptions"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Crown, Loader2 } from "lucide-react"
@@ -12,7 +12,6 @@ import { Link } from "react-router-dom"
 
 export function CreateAdvertPage() {
   const { currentTheme } = useThemeContext()
-  const { user } = useAuth() // Use AuthContext to get user
   const { toast } = useToast()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
@@ -25,18 +24,15 @@ export function CreateAdvertPage() {
       try {
         setLoading(true)
         
-        // Check premium status from user context
-        const hasPremiumAccess = user?.has_premium_access ?? false
-        setIsPremium(hasPremiumAccess)
+        const subscriptionResponse = await getSubscriptionHistory()
+        setIsPremium(subscriptionResponse.hasPremiumAccess)
         
-        // If premium, no need to check counts
-        if (hasPremiumAccess) {
+        if (subscriptionResponse.hasPremiumAccess) {
           setCanCreate(true)
           setLoading(false)
           return
         }
         
-        // Check advert count for free users
         const advertsResponse = await getUserAdverts()
         const count = advertsResponse.adverts.length
         setAdvertCount(count)
@@ -53,7 +49,7 @@ export function CreateAdvertPage() {
     }
 
     checkLimits()
-  }, [user, toast, navigate])
+  }, [toast, navigate])
 
   if (loading) {
     return (
