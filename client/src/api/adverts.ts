@@ -1,20 +1,6 @@
 import api from './api';
 import { AxiosError } from 'axios';
-
-// Define Advert interface
-interface Advert {
-  _id: string;
-  title: string;
-  description: string;
-  image?: string;
-  location?: string;
-  customFields?: { name: string; value: string }[];
-  tags?: string[];
-  visibility?: 'public' | 'private';
-  upvotes?: number;
-  views?: number;
-  upvoted?: boolean;
-}
+import { Advert } from '@/types'; // Import Advert from src/types/index.ts
 
 // Define response interfaces
 interface GetAdvertsResponse {
