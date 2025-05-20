@@ -65,17 +65,19 @@ export const SubscriptionList = () => {
   const [renewing, setRenewing] = useState<string | null>(null);
 
   // Text colors based on theme
-  const textColor = theme === "dark"
-    ? "text-white"
-    : currentTheme.value === "green-forest"
-      ? "text-black"
-      : currentTheme.textPrimary;
+  const textColor =
+    theme === "dark"
+      ? "text-white"
+      : currentTheme.value === "green-forest"
+        ? "text-black"
+        : currentTheme.textPrimary;
 
-  const secondaryTextColor = theme === "dark"
-    ? "text-white"
-    : currentTheme.value === "green-forest"
-      ? "text-black"
-      : currentTheme.textSecondary;
+  const secondaryTextColor =
+    theme === "dark"
+      ? "text-white"
+      : currentTheme.value === "green-forest"
+        ? "text-black"
+        : currentTheme.textSecondary;
 
   const fetchSubscriptions = async () => {
     setLoading(true);
@@ -117,7 +119,7 @@ export const SubscriptionList = () => {
       console.error("Error fetching subscriptions:", error);
       toast({
         title: t("error"),
-        description: error.message,
+        message: error.message, // Changed from description to message
         variant: "destructive",
       });
     } finally {
@@ -136,14 +138,14 @@ export const SubscriptionList = () => {
       await cancelSubscription(subscriptionId);
       toast({
         title: t("success"),
-        description: t("subscriptionCancelled"),
+        message: t("subscriptionCancelled"), // Changed from description to message
       });
       fetchSubscriptions();
     } catch (error: any) {
       console.error("Error cancelling subscription:", error);
       toast({
         title: t("error"),
-        description: error.message,
+        message: error.message, // Changed from description to message
         variant: "destructive",
       });
     } finally {
@@ -158,14 +160,14 @@ export const SubscriptionList = () => {
       await renewSubscription(subscriptionId);
       toast({
         title: t("success"),
-        description: t("subscriptionRenewed"),
+        message: t("subscriptionRenewed"), // Changed from description to message
       });
       fetchSubscriptions();
     } catch (error: any) {
       console.error("Error renewing subscription:", error);
       toast({
         title: t("error"),
-        description: error.message,
+        message: error.message, // Changed from description to message
         variant: "destructive",
       });
     } finally {
