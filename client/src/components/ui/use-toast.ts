@@ -1,15 +1,15 @@
-import { ToastActionElement, ToastProps } from "@/components/ui/toast" // Removed unused Toast import
+import { ToastActionElement, ToastProps } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 5
-const TOAST_REMOVE_DELAY = 1000000
+const TOAST_REMOVE_DELAY = 5000 // Reduced from 1 million ms
 
 interface ToasterToast extends ToastProps {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
-  open?: boolean // Added open property
-  onOpenChange?: (open: boolean) => void // Added onOpenChange callback
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const actionTypes = {
