@@ -1,15 +1,15 @@
-import { Toast, ToastActionElement, ToastProps } from "@/components/ui/toast"
+import { ToastActionElement, ToastProps } from "@/components/ui/toast" // Removed unused Toast import
 
 const TOAST_LIMIT = 5
 const TOAST_REMOVE_DELAY = 1000000
 
-type ToastType = Toast
-
-interface ToasterToast extends ToastType {
+interface ToasterToast extends ToastProps {
   id: string
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
+  open?: boolean // Added open property
+  onOpenChange?: (open: boolean) => void // Added onOpenChange callback
 }
 
 const actionTypes = {
@@ -141,7 +141,7 @@ function useToast() {
           ...props,
           id,
           open: true,
-          onOpenChange: (open) => {
+          onOpenChange: (open: boolean) => {
             if (!open) {
               dispatch({ type: actionTypes.DISMISS_TOAST, toastId: id })
             }
@@ -155,7 +155,7 @@ function useToast() {
   )
 
   const update = React.useCallback(
-    (id: string, toast: ToasterToast) => {
+    (id: string, toast: Partial<ToasterToast>) => {
       dispatch({ type: actionTypes.UPDATE_TOAST, toast: { ...toast, id } })
     },
     [dispatch]
@@ -175,8 +175,6 @@ function useToast() {
     toasts: state.toasts,
   }
 }
-
-import * as React from "react"
 
 export type ToastOptions = ToastProps
 
