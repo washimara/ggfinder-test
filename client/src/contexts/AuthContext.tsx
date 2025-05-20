@@ -2,15 +2,6 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { login as apiLogin, register as apiRegister, logout as apiLogout, getCurrentUser } from "@/api/auth";
 import { User } from "@/types";
 
-// Update User type to include missing properties
-interface User {
-  _id: string;
-  email: string;
-  name: string;
-  has_premium_access: boolean;
-  goodKarma: number;
-}
-
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -53,8 +44,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         _id: response.user._id,
         email: response.user.email,
         name: response.user.name,
-        has_premium_access: response.user.has_premium_access,
-        goodKarma: response.user.goodKarma || 0
+        has_premium_access: response.user.has_premium_access ?? false,
+        goodKarma: response.user.goodKarma ?? 0
       };
       
       setUser(userData);
@@ -71,7 +62,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     try {
       const response = await apiRegister({ email, password, name });
-      setUser(response.user);
+      const userData: User = {
+        _id: response.user._id,
+        email: response.user.email,
+        name: response.user.name,
+        has_premium_access: response.user.has_premium_access ?? false,
+        goodKarma: response.user.goodKarma ?? 0
+      };
+      setUser(userData);
     } catch (error) {
       throw error;
     } finally {
