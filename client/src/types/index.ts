@@ -1,96 +1,105 @@
-export interface User {
-  _id: string;
-  email: string;
-  name: string;
-  has_premium_access?: boolean;
-  goodKarma?: number;
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { login as apiLogin, register as apiRegister, logout as apiLogout, getCurrentUser } from "@/api/auth";
+import { User } from "@/types";
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
-export interface Post {
-  _id: string;
-  title: string;
-  description: string;
-  image?: string;
-  location?: string;
-  customFields?: { name: string; value: string }[];
-  tags?: string[];
-  createdAt: string;
-  userId: string;
-  upvotes?: number;
-  views?: number;
-  upvotedBy?: string[];
-}
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export interface SearchParams {
-  query?: string;
-  tags?: string[];
-  location?: string;
-  radius?: number;
-  lat?: number;
-  lng?: number;
-}
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export interface Advert {
-  _id: string;
-  title: string;
-  description: string;
-  image?: string;
-  location?: string;
-  coordinates?: {
-    type: string;
-    coordinates: [number, number]; // [longitude, latitude]
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        if (localStorage.getItem('accessToken')) {
+          const response = await getCurrentUser();
+          setUser(response.user);
+        }
+      } catch (error) {
+        console.error("Failed to load user:", error);
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadUser();
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      const response = await apiLogin({ email, password });
+      
+      const userData: User = {
+        _id: response.user._id,
+        email: response.user.email,
+        name: response.user.name,
+        has_premium_access: response.user.has_premium_access ?? false, // Default to false if undefined
+        goodKarma: response.user.goodKarma ?? 0 // Default to 0 if undefined
+      };
+      
+      setUser(userData);
+      localStorage.setItem('accessToken', response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
-  distance?: number; // Distance from search location in km
-  customFields?: { name: string; value: string }[];
-  tags?: string[];
-  createdAt: string;
-  userId: string;
-  upvotes?: number;
-  views?: number;
-  upvotedBy?: string[];
-  visibility?: "public" | "private";
-  privateKey?: string;
-}
 
-export interface SubscriptionHistoryResponse {
-  success: boolean;
-  subscriptions: Subscription[];
-  hasPremiumAccess: boolean;
-  premiumUser?: {
-    startDate: string;
-    endDate: string;
+  const register = async (email: string, password: string, name: string) => {
+    setLoading(true);
+    try {
+      const response = await apiRegister({ email, password, name });
+      const userData: User = {
+        _id: response.user._id,
+        email: response.user.email,
+        name: response.user.name,
+        has_premium_access: response.user.has_premium_access ?? false, // Default to false if undefined
+        goodKarma: response.user.goodKarma ?? 0 // Default to 0 if undefined
+      };
+      setUser(userData);
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
-}
 
-export interface Subscription {
-  _id: string;
-  plan: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  autoRenew: boolean;
-  amount: number;
-  currency: string;
-  createdAt: string;
-}
+  const logout = async () => {
+    setLoading(true);
+    try {
+      await apiLogout();
+      setUser(null);
+    } catch (error) {
+      console.error("Failed to logout:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-export type ThemeOption = {
-  name: string;
-  value: string;
-  primaryColor: string;
-  secondaryColor: string;
-  searchBarExterior: string;
-  searchBarInterior: string;
-  buttonPrimary: string;
-  buttonSecondary: string;
-  textPrimary: string;
-  textSecondary: string;
-  headerFooterBg?: string;
-  cardBg?: string;
+  return (
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
-export type Language = {
-  name: string;
-  code: string;
-  flag?: string;
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };
