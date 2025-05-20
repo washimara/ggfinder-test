@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { getUserAdverts } from "@/api/adverts"
-import { getSubscriptionHistory } from "@/api/subscriptions" // Replaced checkPremiumAccess with getSubscriptionHistory
+import { getSubscriptionHistory } from "@/api/subscriptions"
 import { Advert } from "@/types"
 import { useToast } from "@/hooks/useToast"
 import { Link } from "react-router-dom"
@@ -19,7 +19,6 @@ export function MyAdvertsPage() {
   const { currentTheme } = useThemeContext()
   const { theme } = useTheme()
 
-  // Determine text colors based on theme
   const textColor = theme === "dark"
     ? "text-white"
     : currentTheme.value === "green-forest"
@@ -43,12 +42,10 @@ export function MyAdvertsPage() {
       try {
         setLoading(true);
 
-        // Fetch adverts
         console.log("MyAdvertsPage: About to fetch user adverts");
         const advertsResponse = await getUserAdverts();
         console.log("MyAdvertsPage: Received adverts response:", JSON.stringify(advertsResponse));
         
-        // Log each advert's ID and structure to verify it's correct
         if (advertsResponse.adverts && advertsResponse.adverts.length > 0) {
           advertsResponse.adverts.forEach((advert, index) => {
             console.log(`MyAdvertsPage: Advert #${index} ID:`, advert._id);
@@ -64,7 +61,6 @@ export function MyAdvertsPage() {
           }))
         );
 
-        // Check premium status
         const subscriptionResponse = await getSubscriptionHistory();
         console.log("MyAdvertsPage: Premium status:", subscriptionResponse);
         setIsPremium(subscriptionResponse.hasPremiumAccess);
@@ -82,7 +78,6 @@ export function MyAdvertsPage() {
     fetchData();
   }, [toast]);
 
-  // Check if user has reached the free tier limit
   const hasReachedLimit = !isPremium && adverts.length >= 3;
 
   return (
