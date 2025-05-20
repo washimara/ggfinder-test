@@ -1,21 +1,14 @@
 import api from './api';
-
-interface Subscription {
-  [key: string]: any;
-}
-
-interface User {
-  [key: string]: any;
-}
+import { Subscription, User } from '@/types'; // Import from src/types/index.ts
 
 // Description: Create a new subscription
 // Endpoint: POST /api/subscriptions
 // Request: { amount: number, currency: string, paymentMethod: string, autoRenew: boolean }
-// Response: { success: boolean, subscription: object, user: object }
-export const createSubscription = async (data: { 
-  amount: number; 
-  currency?: string; 
-  paymentMethod: string; 
+// Response: { success: boolean, subscription: Subscription, user: User }
+export const createSubscription = async (data: {
+  amount: number;
+  currency?: string;
+  paymentMethod: string;
   autoRenew?: boolean;
 }): Promise<{ success: boolean; subscription: Subscription; user: User }> => {
   try {
@@ -29,8 +22,11 @@ export const createSubscription = async (data: {
 // Description: Get user's active subscription
 // Endpoint: GET /api/subscriptions/active
 // Request: {}
-// Response: { success: boolean, subscription: object|null }
-export const getActiveSubscription = async (): Promise<{ success: boolean; subscription: Subscription | null }> => {
+// Response: { success: boolean, subscription: Subscription | null }
+export const getActiveSubscription = async (): Promise<{
+  success: boolean;
+  subscription: Subscription | null;
+}> => {
   try {
     const response = await api.get('/api/subscriptions/active');
     return response.data;
@@ -42,8 +38,13 @@ export const getActiveSubscription = async (): Promise<{ success: boolean; subsc
 // Description: Get user's subscription history
 // Endpoint: GET /api/subscriptions/history
 // Request: {}
-// Response: { success: boolean, subscriptions: array }
-export const getSubscriptionHistory = async (): Promise<{ success: boolean; subscriptions: Subscription[] }> => {
+// Response: { success: boolean, subscriptions: Subscription[], hasPremiumAccess: boolean, premiumUser?: { startDate: string, endDate: string } }
+export const getSubscriptionHistory = async (): Promise<{
+  success: boolean;
+  subscriptions: Subscription[];
+  hasPremiumAccess: boolean;
+  premiumUser?: { startDate: string; endDate: string };
+}> => {
   try {
     const response = await api.get('/api/subscriptions/history');
     console.log("API response for subscription history:", response.data);
@@ -57,8 +58,10 @@ export const getSubscriptionHistory = async (): Promise<{ success: boolean; subs
 // Description: Cancel a subscription
 // Endpoint: POST /api/subscriptions/:subscriptionId/cancel
 // Request: {}
-// Response: { success: boolean, subscription: object }
-export const cancelSubscription = async (subscriptionId: string): Promise<{ success: boolean; subscription: Subscription }> => {
+// Response: { success: boolean, subscription: Subscription }
+export const cancelSubscription = async (
+  subscriptionId: string
+): Promise<{ success: boolean; subscription: Subscription }> => {
   try {
     const response = await api.post(`/api/subscriptions/${subscriptionId}/cancel`);
     return response.data;
@@ -70,8 +73,10 @@ export const cancelSubscription = async (subscriptionId: string): Promise<{ succ
 // Description: Renew a subscription
 // Endpoint: POST /api/subscriptions/:subscriptionId/renew
 // Request: {}
-// Response: { success: boolean, subscription: object, user: object }
-export const renewSubscription = async (subscriptionId: string): Promise<{ success: boolean; subscription: Subscription; user: User }> => {
+// Response: { success: boolean, subscription: Subscription, user: User }
+export const renewSubscription = async (
+  subscriptionId: string
+): Promise<{ success: boolean; subscription: Subscription; user: User }> => {
   try {
     const response = await api.post(`/api/subscriptions/${subscriptionId}/renew`);
     return response.data;
@@ -79,6 +84,3 @@ export const renewSubscription = async (subscriptionId: string): Promise<{ succe
     throw new Error(error?.response?.data?.message || error.message);
   }
 };
-
-// Description: Check premium access
-// Endpoint: GET /api
