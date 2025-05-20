@@ -3,7 +3,6 @@ import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft } from "lucide-react"
 
-import { useMobile } from "@/hooks/useMobile"  // Changed from useIsMobile to useMobile
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +15,24 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+
+// Custom hook to detect mobile devices
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  React.useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768) // Adjust breakpoint as needed (768px is a common mobile threshold)
+    }
+
+    checkIsMobile()
+    window.addEventListener("resize", checkIsMobile)
+
+    return () => window.removeEventListener("resize", checkIsMobile)
+  }, [])
+
+  return { isMobile }
+}
 
 const SIDEBAR_COOKIE_NAME = "sidebar:state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
@@ -65,7 +82,7 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile } = useMobile()  // Changed from useIsMobile to useMobile
+    const { isMobile } = useIsMobile() // Use the new hook
     const [openMobile, setOpenMobile] = React.useState(false)
 
     // This is the internal state of the sidebar.
@@ -153,6 +170,8 @@ const SidebarProvider = React.forwardRef<
   }
 )
 SidebarProvider.displayName = "SidebarProvider"
+
+// ... Rest of the file remains unchanged ...
 
 const Sidebar = React.forwardRef<
   HTMLDivElement,
@@ -501,7 +520,7 @@ const SidebarMenuItem = React.forwardRef<
   React.ComponentProps<"li">
 >(({ className, ...props }, ref) => (
   <li
-    ref={ref}
+       ref={ref}
     data-sidebar="menu-item"
     className={cn("group/menu-item relative", className)}
     {...props}
