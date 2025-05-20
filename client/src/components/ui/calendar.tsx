@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { DayPicker, DayPickerProps } from "react-day-picker"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -50,7 +51,6 @@ const Calendar = React.forwardRef<HTMLDivElement, CalendarProps>(
         components={{
           IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
           IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
-          // Fix unused props
           Day: React.forwardRef<
             HTMLDivElement,
             React.HTMLAttributes<HTMLDivElement>
