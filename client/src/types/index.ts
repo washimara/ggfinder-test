@@ -48,8 +48,30 @@ export interface Advert {
   upvotes?: number;
   views?: number;
   upvotedBy?: string[];
-  visibility?: 'public' | 'private';
+  visibility?: "public" | "private";
   privateKey?: string;
+}
+
+export interface SubscriptionHistoryResponse {
+  success: boolean;
+  subscriptions: Subscription[];
+  hasPremiumAccess: boolean;
+  premiumUser?: {
+    startDate: string;
+    endDate: string;
+  };
+}
+
+export interface Subscription {
+  _id: string;
+  plan: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  autoRenew: boolean;
+  amount: number;
+  currency: string;
+  createdAt: string;
 }
 
 export type ThemeOption = {
