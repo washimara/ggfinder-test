@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { getUserAdverts } from "@/api/adverts"
-import { checkPremiumAccess } from "@/api/subscriptions"
+import { getSubscriptionHistory } from "@/api/subscriptions" // Replaced checkPremiumAccess with getSubscriptionHistory
 import { Advert } from "@/types"
 import { useToast } from "@/hooks/useToast"
 import { Link } from "react-router-dom"
@@ -65,9 +65,9 @@ export function MyAdvertsPage() {
         );
 
         // Check premium status
-        const premiumResponse = await checkPremiumAccess();
-        console.log("MyAdvertsPage: Premium status:", premiumResponse);
-        setIsPremium(premiumResponse.hasPremiumAccess);
+        const subscriptionResponse = await getSubscriptionHistory();
+        console.log("MyAdvertsPage: Premium status:", subscriptionResponse);
+        setIsPremium(subscriptionResponse.hasPremiumAccess);
       } catch (error: any) {
         console.error("MyAdvertsPage: Error fetching data:", error);
         toast({
@@ -80,7 +80,7 @@ export function MyAdvertsPage() {
     };
 
     fetchData();
-  }, []);
+  }, [toast]);
 
   // Check if user has reached the free tier limit
   const hasReachedLimit = !isPremium && adverts.length >= 3;
