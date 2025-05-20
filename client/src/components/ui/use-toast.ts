@@ -1,7 +1,8 @@
+import * as React from "react"
 import { ToastActionElement, ToastProps } from "@/components/ui/toast"
 
 const TOAST_LIMIT = 5
-const TOAST_REMOVE_DELAY = 5000 // Reduced from 1 million ms
+const TOAST_REMOVE_DELAY = 5000
 
 interface ToasterToast extends ToastProps {
   id: string
