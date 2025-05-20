@@ -30,7 +30,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { RefreshCcw, X } from "lucide-react";
-import { ToastProps } from "@/components/ui/use-toast"; // Import ToastProps
 
 interface Subscription {
   _id: string;
@@ -53,11 +52,6 @@ interface SubscriptionHistoryResponse {
     startDate: string;
     endDate: string;
   };
-}
-
-// Extend ToastProps to include description explicitly
-interface CustomToastProps extends ToastProps {
-  description?: string;
 }
 
 export const SubscriptionList = () => {
@@ -127,7 +121,7 @@ export const SubscriptionList = () => {
         title: t("error"),
         description: error.message,
         variant: "destructive",
-      } as CustomToastProps);
+      });
     } finally {
       setLoading(false);
     }
@@ -145,7 +139,7 @@ export const SubscriptionList = () => {
       toast({
         title: t("success"),
         description: t("subscriptionCancelled"),
-      } as CustomToastProps);
+      });
       fetchSubscriptions();
     } catch (error: any) {
       console.error("Error cancelling subscription:", error);
@@ -153,7 +147,7 @@ export const SubscriptionList = () => {
         title: t("error"),
         description: error.message,
         variant: "destructive",
-      } as CustomToastProps);
+      });
     } finally {
       setCancelling(null);
     }
@@ -167,7 +161,7 @@ export const SubscriptionList = () => {
       toast({
         title: t("success"),
         description: t("subscriptionRenewed"),
-      } as CustomToastProps);
+      });
       fetchSubscriptions();
     } catch (error: any) {
       console.error("Error renewing subscription:", error);
@@ -175,7 +169,7 @@ export const SubscriptionList = () => {
         title: t("error"),
         description: error.message,
         variant: "destructive",
-      } as CustomToastProps);
+      });
     } finally {
       setRenewing(null);
     }
